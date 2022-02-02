@@ -12,31 +12,9 @@ import {
     InputGroup,
     InputGroupAddon, InputGroupText
 } from "shards-react";
-import {Component} from "react";
 
-
-
-class App extends Component {
-  constructor(props) {
-      super(props);
-      this.state={
-          login:"",
-          password:"",
-      }
-      this.changeLogin=this.changeLogin.bind(this);
-      this.changePassword=this.changePassword.bind(this);
-  }
-
-  changeLogin(e){
-      this.setState({login:e.target.value})
-  }
-
-  changePassword(e){
-      this.setState({password:e.target.value})
-  }
-
-    render(){
-    return (
+function App() {
+  return (
     <div className="App App-header">
         <Card style={{ maxWidth: "300px" }}>
             <CardHeader>Авторизация</CardHeader>
@@ -49,14 +27,14 @@ class App extends Component {
                     <InputGroupAddon type="prepend">
                         <InputGroupText>login</InputGroupText>
                     </InputGroupAddon>
-                    <FormInput placeholder="Total Amount" onChange={this.changeLogin}/>
+                    <FormInput placeholder="Total Amount" />
                 </InputGroup>
 
                 <InputGroup className="mb-2">
                     <InputGroupAddon type="prepend">
                         <InputGroupText>pass</InputGroupText>
                     </InputGroupAddon>
-                    <FormInput placeholder="Total Amount" onChange={this.changePassword}/>
+                    <FormInput placeholder="Total Amount" />
                 </InputGroup>
 
 
@@ -66,7 +44,6 @@ class App extends Component {
         </Card>
     </div>
   );
-  }
 }
 
 export default App;
