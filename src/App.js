@@ -1,128 +1,94 @@
-import './App.css';
-import {Button, Message} from "semantic-ui-react";
-import {
-    Alert,
-    Badge,
-    Card,
-    CardBody,
-    CardFooter,
-    CardHeader,
-    CardImg,
-    CardTitle,
-    FormInput,
-    InputGroup,
-    InputGroupAddon, InputGroupText
-} from "shards-react";
+import {Link, Navigate, Route, Routes, } from "react-router-dom";
 import {Component} from "react";
-
+import {history} from "./utils/history";
+import LandingPage from "./LandingPage/LandingPage";
+import HomePage from "./HomePage/HomePage";
+import LoginPage from "./LoginPage/LoginPage";
+import {Button, Nav, NavItem, NavLink} from "shards-react";
+import SettingsPage from "./SettingsPage/SettingsPage";
 
 class App extends Component {
     constructor(props) {
         super(props);
-        this.state ={
-            login:"",
-            pass:"",
-            status:"",
-            color:""
+        this.state = {
+            unlock: false,
+            auth: false,
+            btnColor:"danger"
         }
-
-        this.changeLogin = this.changeLogin.bind(this)
-        this.changePass = this.changePass.bind(this)
-        this.btnOne = this.btnOne.bind(this)
-
     }
 
-    changeLogin(e) {
-        this.setState({status:"",color:"",login:e.target.value})
-    }
-
-    changePass(e) {
-        this.setState({status:"",color:"",pass:e.target.value})
-    }
-
-    btnOne() {
-        //fetch
-        let authData = {
-            email:this.state.login,
-            password:this.state.pass,
+    componentDidMount() {
+        if (this.state.auth === true){
+            history.push("/home")
+        } else {
+            history.push("/")
         }
-
-        const requestOptions = {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify(authData)
-        };
-
-        fetch(`https://kimmy.uno/web/auth`, requestOptions)
-            .then((response) => response.json())
-            .then((data) => {
-                console.log("status:",data.status)
-
-                switch (data.status) {
-                    case "success":
-                        //записываем токен в local
-                        console.log("input:",data)
-                        console.log("input #2:",data.data.access)
-                        localStorage.setItem("token",data.data.access)
-                        this.setState({status:"Успех", color:"success"})
-                        break
-                    case "accNotFound":
-                        //записываем токен в local
-                        this.setState({status:"Аккаунт не существует", color:"warning"})
-                        break
-                    case "error":
-                        //подсветим поле неправильно или просто выведем что ошибка
-                        this.setState({status:"Ошибка", color:"danger"})
-                        break
-                    default:
-                        break
-                }
-                // this.setState({version: data.version})
-            })
-            .catch(function (err) {
-                return err;
-            })
-            .then((err) => {
-                console.log("err:",err)
-            });
     }
 
     render() {
-        return(
-            <div className="App App-header">
-                <Card style={{ maxWidth: "300px" }}>
-                    <CardHeader>Авторизация</CardHeader>
+        let routes = (
+            <div>
+            <Routes>
 
-                    <CardBody>
-                        <br/>
-                        <br/>
+                {/*NEED AUTH*/}
+                {this.state.auth ? (
+                    <>
+                        <Route path={"/home"} element={<HomePage/>}/>
+                        <Route path={"/settings"} element={<SettingsPage/>} />
 
-                        {this.state.status ? (<Alert theme={this.state.color}>{this.state.status}</Alert>):(<></>)}
+                        {/*ЕСЛИ МЫ ЗАЛОГИНЕНЫ, НО ВВЕЛИ ЕРУНДУ В URL ТО ОТПРАВИТЬ ПОЛЬЗОВАТЕЛЯ ОБРАТНО В ЕГО КАБИНЕТ*/}
+                        <Route path="*" element={<Navigate to={"/home"}/>}/>
+                    </>)
+                    :null
+                }
 
-
-                        <InputGroup className="mb-2">
-                            <InputGroupAddon type="prepend">
-                                <InputGroupText>login</InputGroupText>
-                            </InputGroupAddon>
-                            <FormInput placeholder="Total Amount" onChange={this.changeLogin}/>
-                        </InputGroup>
-
-                        <InputGroup className="mb-2">
-                            <InputGroupAddon type="prepend">
-                                <InputGroupText>pass</InputGroupText>
-                            </InputGroupAddon>
-                            <FormInput placeholder="Total Amount" onChange={this.changePass}/>
-                        </InputGroup>
-
-
-                        <Button onClick={this.btnOne}>Войти</Button>
-                    </CardBody>
-                    <CardFooter style={{fontSize:"14px"}}>Не аккаунта? Создать</CardFooter>
-                </Card>
+                {/*PUBLIC*/}
+                <Route path={"/"} element={<LandingPage />} />
+                <Route path={"/login"} element={<LoginPage />} />
+                <Route path="*" element={<Navigate to={"/"}/>}/>
+            </Routes>
             </div>
         )
-    }
 
+        return (
+            <div>
+                <Nav>
+                    <NavItem>
+                        <NavLink active href="#">
+                            <Link to="/home">Главная</Link>
+                        </NavLink>
+                    </NavItem>
+                    <NavItem>
+                        <NavLink href="#">
+                            <Link to="/login">Логин</Link>
+                        </NavLink>
+                    </NavItem>
+                    <NavItem>
+                        <NavLink href="#">
+                            <Link to="/home">Личный кабинет</Link></NavLink>
+                    </NavItem>
+                    <NavItem>
+                        <NavLink href="#">
+                            <Link to="/settings">Настройки кабинета</Link>
+                        </NavLink>
+                    </NavItem>
+                    <NavItem>
+                        <Button
+                            size="sm"
+                            pill
+                            theme={this.state.auth ? "success":"danger"}
+                            onClick={()=>{this.setState({auth:!this.state.auth})}}
+                        >
+                            {this.state.auth ? "Выйти из учётной записи" : "Авторизоваться"}
+                        </Button>
+                    </NavItem>
+                </Nav>
+                <hr/>
+                    <br/>
+                    {routes}
+            </div>
+        );
+    }
 }
 
-export default App;
+export default App
